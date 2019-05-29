@@ -4,17 +4,17 @@ import os
 from common.logger_utility import *
 from common.constants import *
 
-sns = boto3.client('sns')
+sns = boto3.client('sns', region_name='us-east-1')
 class SqsHandler:
 
-    def __publish_message_to_sns(self, message):
+    def publish_message_to_sns(self, message):
         response = sns.publish(
             TargetArn=os.environ['BATCH_NOTIFICATION_SNS'],
             Message=json.dumps({'default': json.dumps(message)}),
             MessageStructure='json'
         )
 
-    def __poll_for_batches(self,event, context):
+    def poll_for_batches(self,event, context):
         try:
             sqs = boto3.resource('sqs', region_name='us-east-1')
             is_historical = event["is_historical"] == "true"
@@ -23,7 +23,7 @@ class SqsHandler:
                 persist_sqs = os.environ["persistence_historical_sqs"]
                 
             queue = sqs.get_queue_by_name(QueueName=persist_sqs)
-            data={}
+            data = dict()
             data["is_historical"] = str(is_historical).lower()
             if 'BatchId' not in event:
                 for message in queue.receive_messages():
@@ -37,12 +37,12 @@ class SqsHandler:
                 data["BatchId"] = event['BatchId']
 
             if 'BatchId' in data:
-                self.__publish_message_to_sns({"BatchId": data["BatchId"], "Status": "Persistence process started"})
+                self.publish_message_to_sns({"BatchId": data["BatchId"], "Status": "Persistence process started"})
             return data
         except Exception as e:
             LoggerUtility.logError("Error polling for batches")
             raise e
     
     def get_batches(self, event, context):
-        return self.__poll_for_batches(event, context)
+        return self.poll_for_batches(event, context)
         
