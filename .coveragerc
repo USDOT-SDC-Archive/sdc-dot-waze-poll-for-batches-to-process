@@ -31,6 +31,6 @@ omit=
     **/__init__.py
 
 [html]
-    directory = html_coverage_reports
-    title = Coverage Report for sdc-dot-waze-poll-for-batches-to-process
+directory = html_coverage_reports
+title = Coverage Report for sdc-dot-waze-poll-for-batches-to-process
 
