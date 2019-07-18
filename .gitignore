@@ -1,0 +1,9 @@
+.DS_Store
+**/__pycache__/**
+**.pyc
+**/**.pyc
+.idea/
+.pytest_cache/**
+.coverage
+html_coverage_reports/**
+venv/*
