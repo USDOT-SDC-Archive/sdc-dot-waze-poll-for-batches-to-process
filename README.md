@@ -1,3 +1,4 @@
+
 [![Build Status](https://travis-ci.com/usdot-jpo-sdc/sdc-dot-waze-poll-for-batches-to-process.svg?branch=master)](https://travis-ci.com/usdot-jpo-sdc/sdc-dot-waze-poll-for-batches-to-process)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=usdot-jpo-sdc_sdc-dot-waze-poll-for-batches-to-process&metric=alert_status)](https://sonarcloud.io/dashboard?id=usdot-jpo-sdc_sdc-dot-waze-poll-for-batches-to-process)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=usdot-jpo-sdc_sdc-dot-waze-poll-for-batches-to-process&metric=coverage)](https://sonarcloud.io/dashboard?id=usdot-jpo-sdc_sdc-dot-waze-poll-for-batches-to-process)
@@ -121,3 +122,4 @@ TO BE UPDATED
 For any queries you can reach to support@securedatacommons.com
 ---
 [Back to top](#toc)
+
