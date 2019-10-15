@@ -1,37 +1,38 @@
 import logging
 import os
+
 from common.constants import *
 
 
 class LoggerUtility:
     @staticmethod
-    def setLevel():
-        logFormat = '%(asctime)-15s %(levelname)s:%(message)s'
-        logging.basicConfig(format=logFormat)
+    def set_level():
+        log_format = '%(asctime)-15s %(levelname)s:%(message)s'
+        logging.basicConfig(format=log_format)
         logger = logging.getLogger(Constants.LOGGER_NAME)
 
         try:
-            logLevel = os.environ(Constants.LOGGER_LOG_LEVEL_ENV_VAR)
+            log_level = os.environ(Constants.LOGGER_LOG_LEVEL_ENV_VAR)
         except Exception as e:
-            logLevel = Constants.LOGGER_DEFAULT_LOG_LEVEL
+            log_level = Constants.LOGGER_DEFAULT_LOG_LEVEL
 
-        logger.setLevel(logging.getLevelName(logLevel))
+        logger.setLevel(logging.getLevelName(log_level))
         return True
 
     @staticmethod
-    def logInfo(message):
+    def log_info(message):
         logger = logging.getLogger(Constants.LOGGER_NAME)
         logger.info('%s', message)
         return True
 
     @staticmethod
-    def logError(message):
+    def log_error(message):
         logger = logging.getLogger(Constants.LOGGER_NAME)
         logger.error('%s', message)
         return True
 
     @staticmethod
-    def logWarning(message):
+    def log_warning(message):
         logger = logging.getLogger(Constants.LOGGER_NAME)
         logger.warning('%s', message)
         return True
