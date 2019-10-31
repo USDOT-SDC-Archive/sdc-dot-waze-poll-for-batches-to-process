@@ -1,4 +1,5 @@
 import psycopg2
+
 from common.logger_utility import *
 
 
@@ -19,7 +20,7 @@ class RedshiftConnection:
         )
         self.connection.set_session(autocommit=True)
         self.cursor = self.connection.cursor()
-        LoggerUtility.logInfo("Established connection successfully")
+        LoggerUtility.log_info("Established connection successfully")
 
     def execute(self, query):
         cursor = self.connection.cursor()
@@ -36,13 +37,13 @@ class RedshiftManager:
         self.query_loader = query_loader
 
     def execute_from_file(self, file_name, **query_kwargs):
-        LoggerUtility.logInfo("Filename - {}, Role - {}".format(file_name, self.redshift_role_arn))
+        LoggerUtility.log_info("Filename - {}, Role - {}".format(file_name, self.redshift_role_arn))
         query = self.query_loader.load_from_file(
             file_name,
             region_name=self.region_name,
             redshift_role_arn=self.redshift_role_arn,
             **query_kwargs
         )
-        LoggerUtility.logInfo("Query details - {}".format(query))
-        LoggerUtility.logInfo("Executing redshift copy command")
+        LoggerUtility.log_info("Query details - {}".format(query))
+        LoggerUtility.log_info("Executing redshift copy command")
         return self.redshift_connection.execute(query)
