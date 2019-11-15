@@ -1,8 +1,7 @@
 import boto3
 import json
 import os
-from common.logger_utility import *
-from common.constants import *
+from common.logger_utility import LoggerUtility
 
 sns = boto3.client('sns', region_name='us-east-1')
 
@@ -15,17 +14,16 @@ class SqsHandler:
         :param message: dict
         """
 
-        response = sns.publish(
+        sns.publish(
             TargetArn=os.environ['BATCH_NOTIFICATION_SNS'],
             Message=json.dumps({'default': json.dumps(message)}),
             MessageStructure='json'
         )
 
-    def poll_for_batches(self, event, context):
+    def poll_for_batches(self, event):
         """
         gets the messages from the data persistence queue to start the persistence in Redshift
         :param event: a dictionary, or a list of a dictionary, that contains information on a batch
-        :param context:
         :return:
         """
         try:
@@ -42,11 +40,11 @@ class SqsHandler:
             # if no batch id assigned, gather BatchId, queueUrl, and receiptHandle from the messages in the queue.
             if 'BatchId' not in event:
                 for message in queue.receive_messages():
-                    jsonBody = json.loads(message.body)
-                    data["BatchId"] = jsonBody["BatchId"]
+                    json_body = json.loads(message.body)
+                    data["BatchId"] = json_body["BatchId"]
                     data["queueUrl"] = message.queue_url
                     data["receiptHandle"] = message.receipt_handle
-                    LoggerUtility.logInfo("Batch {} retrieved for processing".format(jsonBody["BatchId"]))
+                    LoggerUtility.log_info("Batch {} retrieved for processing".format(json_body["BatchId"]))
                     break
 
             # Otherwise, only assign the BatchId from the event.
@@ -57,14 +55,13 @@ class SqsHandler:
                 self.publish_message_to_sns({"BatchId": data["BatchId"], "Status": "Persistence process started"})
             return data
         except Exception as e:
-            LoggerUtility.logError("Error polling for batches")
+            LoggerUtility.log_error("Error polling for batches")
             raise e
     
-    def get_batches(self, event, context):
+    def get_batches(self, event):
         """
         Executes poll_for_batches
         :param event: a dictionary, or a list of a dictionary, that contains information on a batch
-        :param context:
         :return:
         """
-        return self.poll_for_batches(event, context)
+        return self.poll_for_batches(event)

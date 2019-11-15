@@ -11,9 +11,9 @@ from lambdas.poll_for_batches_to_process_handler import SqsHandler
 
 @mock_sns
 def test_publish_message_to_sns():
-    batchId = str(int(time.time()))
+    batch_id = str(int(time.time()))
     topic_name = "dev-dot-sdc-cloudwatch-alarms-notification-topic"
-    message = {"BatchId": batchId, "Status": "Manifest generation completed"}
+    message = {"BatchId": batch_id, "Status": "Manifest generation completed"}
     sns = boto3.client('sns', region_name='us-east-1')
     response = sns.create_topic(Name=topic_name)
     os.environ["BATCH_NOTIFICATION_SNS"] = response['TopicArn']
@@ -30,7 +30,7 @@ def test_poll_for_batches_not_historical():
         queue_event["is_historical"] = "false"
         queue_event["BatchId"] = str(int(time.time()))
         poll_batches_to_process_obj = SqsHandler()
-        poll_batches_to_process_obj.poll_for_batches(queue_event, None)
+        poll_batches_to_process_obj.poll_for_batches(queue_event)
 
 
 @mock_sqs
@@ -41,7 +41,7 @@ def test_poll_for_batches_historical():
         queue_event["is_historical"] = "true"
         queue_event["BatchId"] = str(int(time.time()))
         poll_batches_to_process_obj = SqsHandler()
-        poll_batches_to_process_obj.poll_for_batches(queue_event, None)
+        poll_batches_to_process_obj.poll_for_batches(queue_event)
 
 
 @mock_sqs
@@ -59,7 +59,7 @@ def test_poll_for_batches_historical_status_assigned(monkeypatch):
     queue_event["BatchId"] = str(int(time.time()))
     poll_batches_to_process_obj = SqsHandler()
 
-    data = poll_batches_to_process_obj.poll_for_batches(queue_event, None)
+    data = poll_batches_to_process_obj.poll_for_batches(queue_event)
     assert data["is_historical"] == queue_event["is_historical"].lower()
 
 
@@ -102,7 +102,7 @@ def test_poll_for_batches_batches_not_in_event(monkeypatch):
     queue_event["is_historical"] = "false"
     poll_batches_to_process_obj = SqsHandler()
 
-    data = poll_batches_to_process_obj.poll_for_batches(queue_event, None)
+    data = poll_batches_to_process_obj.poll_for_batches(queue_event)
 
     assert data["BatchId"] == "test_batch_id"
     assert data["queueUrl"] == "test_queue_url"

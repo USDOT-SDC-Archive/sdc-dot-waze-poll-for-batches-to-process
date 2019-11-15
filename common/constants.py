@@ -1,5 +1,4 @@
 class Constants:
-
     LOGGER_NAME = "datalake-quickstart-logger"
     LOGGER_LOG_LEVEL_ENV_VAR = "LOG_LEVEL"
     LOGGER_DEFAULT_LOG_LEVEL = "INFO"
