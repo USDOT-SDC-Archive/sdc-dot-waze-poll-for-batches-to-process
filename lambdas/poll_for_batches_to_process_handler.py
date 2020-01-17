@@ -1,6 +1,8 @@
-import boto3
 import json
 import os
+
+import boto3
+
 from common.logger_utility import LoggerUtility
 
 sns = boto3.client('sns', region_name='us-east-1')
@@ -20,19 +22,21 @@ class SqsHandler:
             MessageStructure='json'
         )
 
-    def poll_for_batches(self, event):
+    def poll_for_batches(self, event, context):
         """
         gets the messages from the data persistence queue to start the persistence in Redshift
         :param event: a dictionary, or a list of a dictionary, that contains information on a batch
+        :param context: Not used
         :return:
         """
+        LoggerUtility.log_info("Context: {}".format(context))
         try:
             sqs = boto3.resource('sqs', region_name='us-east-1')
             is_historical = event["is_historical"] == "true"
             persist_sqs = os.environ["persistence_sqs"]
             if is_historical:
                 persist_sqs = os.environ["persistence_historical_sqs"]
-                
+
             queue = sqs.get_queue_by_name(QueueName=persist_sqs)
             data = dict()
             data["is_historical"] = str(is_historical).lower()
@@ -57,11 +61,12 @@ class SqsHandler:
         except Exception as e:
             LoggerUtility.log_error("Error polling for batches")
             raise e
-    
-    def get_batches(self, event):
+
+    def get_batches(self, event, context):
         """
         Executes poll_for_batches
         :param event: a dictionary, or a list of a dictionary, that contains information on a batch
+        :param context: Not used
         :return:
         """
-        return self.poll_for_batches(event)
+        return self.poll_for_batches(event, context)

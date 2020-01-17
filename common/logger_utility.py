@@ -1,7 +1,7 @@
 import logging
 import os
 
-from common.constants import *
+from common.constants import Constants
 
 
 class LoggerUtility:
