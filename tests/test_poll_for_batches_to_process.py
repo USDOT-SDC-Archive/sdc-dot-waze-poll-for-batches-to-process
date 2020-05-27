@@ -1,57 +1,62 @@
-from moto import mock_sns, mock_sqs, mock_events
-import sys
+import json
 import os
 import time
+from unittest.mock import patch
+
 import boto3
 import pytest
-import json
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+from botocore.errorfactory import ClientError
+from moto import mock_sqs, mock_events
+
 from lambdas.poll_for_batches_to_process_handler import SqsHandler
 
+os.environ['BATCH_NOTIFICATION_SNS'] = "batch_notification_sns"
 
-@mock_sns
+
+class MockSNS:
+    def publish(self, *args, **kwargs):
+        pass
+
+
+mock_client = MockSNS()
+
+
+@patch('lambdas.poll_for_batches_to_process_handler.sns', mock_client)
 def test_publish_message_to_sns():
-    batch_id = str(int(time.time()))
-    topic_name = "dev-dot-sdc-cloudwatch-alarms-notification-topic"
-    message = {"BatchId": batch_id, "Status": "Manifest generation completed"}
-    sns = boto3.client('sns', region_name='us-east-1')
-    response = sns.create_topic(Name=topic_name)
-    os.environ["BATCH_NOTIFICATION_SNS"] = response['TopicArn']
-    poll_batches_to_process_obj = SqsHandler()
-    poll_batches_to_process_obj.publish_message_to_sns(message)
-    assert True
+    sqs_handler = SqsHandler()
+    sqs_handler.publish_message_to_sns(None)
 
 
 @mock_sqs
 def test_poll_for_batches_not_historical():
     with pytest.raises(Exception):
-        os.environ["persistence_sqs"] = "dev-dot-sdc-waze-data-persistence-orchestration"
+        os.environ["persistence_sqs"] = "persistence_sqs"
         queue_event = dict()
         queue_event["is_historical"] = "false"
         queue_event["BatchId"] = str(int(time.time()))
         poll_batches_to_process_obj = SqsHandler()
-        poll_batches_to_process_obj.poll_for_batches(queue_event)
+        poll_batches_to_process_obj.poll_for_batches(queue_event, None)
 
 
 @mock_sqs
 def test_poll_for_batches_historical():
-    with pytest.raises(Exception):
-        os.environ["persistence_historical_sqs"] = "dev-dot-sdc-waze-data-historical-persistence-orchestration"
+    with pytest.raises(ClientError):
+        os.environ["persistence_sqs"] = "persistence_sqs"
+        os.environ["persistence_historical_sqs"] = "persistence_historical_sqs"
         queue_event = dict()
         queue_event["is_historical"] = "true"
         queue_event["BatchId"] = str(int(time.time()))
         poll_batches_to_process_obj = SqsHandler()
-        poll_batches_to_process_obj.poll_for_batches(queue_event)
+        poll_batches_to_process_obj.poll_for_batches(queue_event, None)
 
 
 @mock_sqs
 def test_poll_for_batches_historical_status_assigned(monkeypatch):
-
     def mock_publish_message(*args, **kwargs):
         pass
 
     monkeypatch.setattr(SqsHandler, "publish_message_to_sns", mock_publish_message)
-    os.environ["persistence_sqs"] = "dev-dot-sdc-curated-batches.fifo"
+    os.environ["persistence_sqs"] = "persistence_sqs"
     sqs = boto3.resource('sqs', region_name='us-east-1')
     sqs.create_queue(QueueName=os.environ["persistence_sqs"])
     queue_event = dict()
@@ -59,12 +64,11 @@ def test_poll_for_batches_historical_status_assigned(monkeypatch):
     queue_event["BatchId"] = str(int(time.time()))
     poll_batches_to_process_obj = SqsHandler()
 
-    data = poll_batches_to_process_obj.poll_for_batches(queue_event)
+    data = poll_batches_to_process_obj.poll_for_batches(queue_event, None)
     assert data["is_historical"] == queue_event["is_historical"].lower()
 
 
 def test_poll_for_batches_batches_not_in_event(monkeypatch):
-
     class MockMessage:
         body = None
 
@@ -96,13 +100,13 @@ def test_poll_for_batches_batches_not_in_event(monkeypatch):
     monkeypatch.setattr(json, "loads", mock_json_loads)
     monkeypatch.setattr(SqsHandler, "publish_message_to_sns", mock_publish_message)
 
-    os.environ["persistence_sqs"] = "dev-dot-sdc-curated-batches.fifo"
+    os.environ["persistence_sqs"] = "persistence_sqs"
     boto3.setup_default_session()
     queue_event = dict()
     queue_event["is_historical"] = "false"
     poll_batches_to_process_obj = SqsHandler()
 
-    data = poll_batches_to_process_obj.poll_for_batches(queue_event)
+    data = poll_batches_to_process_obj.poll_for_batches(queue_event, None)
 
     assert data["BatchId"] == "test_batch_id"
     assert data["queueUrl"] == "test_queue_url"
@@ -111,7 +115,6 @@ def test_poll_for_batches_batches_not_in_event(monkeypatch):
 
 @mock_events
 def test_get_batches():
-    with pytest.raises(Exception):
-        assert SqsHandler.get_batches(None, None) is None
-
-
+    with pytest.raises(TypeError):
+        sqs_handler = SqsHandler()
+        assert sqs_handler.get_batches(None, None) is None

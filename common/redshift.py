@@ -1,6 +1,6 @@
 import psycopg2
 
-from common.logger_utility import *
+from common.logger_utility import LoggerUtility
 
 
 class RedshiftConnection:
