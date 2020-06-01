@@ -50,16 +50,16 @@ There are two primary functions that this lambda function serves:
 The following instructions describe the procedure to build and deploy the lambda.
 
 ### Prerequisites
-* NA 
+* N/A 
 
 ---
 ### ThirdParty library
 
-*NA
+*N/A
 
 ### Licensed softwares
 
-*NA
+*N/A
 
 ### Programming tool versions
 
