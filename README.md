@@ -1,7 +1,12 @@
+# This repository is DEPRECATED!
 
-[![Build Status](https://travis-ci.org/usdot-jpo-sdc-projects/sdc-dot-waze-poll-for-batches-to-process.svg?branch=master)](https://travis-ci.org/usdot-jpo-sdc-projects/sdc-dot-waze-poll-for-batches-to-process)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=usdot-jpo-sdc_sdc-dot-waze-poll-for-batches-to-process&metric=alert_status)](https://sonarcloud.io/dashboard?id=usdot-jpo-sdc_sdc-dot-waze-poll-for-batches-to-process)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=usdot-jpo-sdc_sdc-dot-waze-poll-for-batches-to-process&metric=coverage)](https://sonarcloud.io/dashboard?id=usdot-jpo-sdc_sdc-dot-waze-poll-for-batches-to-process)
+This repository is deprecated as of **08/05/2020**.
+
+The code and infrastructure has moved to https://github.com/usdot-jpo-sdc-projects/sdc-dot-waze-pipeline
+
+Please refer to the waze pipeline repo for all future development.
+
+
 # sdc-dot-waze-poll-for-batches-to-process
 This lambda function is responsible for polling the batches to start the persistence of data in Redshift.
 
